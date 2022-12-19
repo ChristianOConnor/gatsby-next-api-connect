@@ -1,5 +1,5 @@
 import * as React from "react"
-import type { HeadFC, PageProps } from "gatsby"
+import { HeadFC, Link, PageProps } from "gatsby"
 import * as styles from "../../styles/Home.module.css"
 import Layout from "../components/layout"
 
@@ -23,12 +23,12 @@ const IndexPage: React.FC<PageProps> = () => {
         </p>
 
         <figure className="flex flex-col items-center justify-center p-8 text-center bg-white border-b border-gray-200 rounded-t-lg md:rounded-t-none md:rounded-tl-lg md:border-r dark:bg-gray-800 dark:border-gray-700">
-          <a href="/characters?page=1" className="block max-w-sm p-6 bg-white border border-gray-200 rounded-lg shadow-md hover:bg-gray-100 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700">
+          <Link to="/characters?page=1" className="block max-w-sm p-6 bg-white border border-gray-200 rounded-lg shadow-md hover:bg-gray-100 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700">
             <div>
               <div>Connect Metamask &rarr;</div>
               <div>Authenticate with Metamask to see special page</div>
             </div>
-          </a>
+          </Link>
         </figure>
       </main>
 
