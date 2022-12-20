@@ -1,20 +1,20 @@
+import { Link, PageProps } from "gatsby";
+import React, { useEffect, useState, useCallback } from "react";
+import Layout from "../components/layout";
 import * as styles from '../../styles/Home.module.css';
-import { useQueryParam, NumberParam, StringParam } from "use-query-params";
-import { Link, PageProps } from 'gatsby';
-import Layout from '../components/layout';
-import React, { useEffect, useState } from 'react';
+
 
 const AquireData = async (params: any) => {
     let inputParam = 1;
 
-    if (!params == null) {
+    if (!params || params?.page == null) {
         inputParam = 1;
-    } else if (isNaN(params)) {
+    } else if (isNaN(params.page)) {
         inputParam = 1;
-    } else if (parseInt(params) < 0 || parseInt(params) > 42) {
+    } else if (parseInt(params.page) < 0 || parseInt(params.page) > 42) {
         inputParam = 1;
     } else {
-        inputParam = params;
+        inputParam = params.page;
     }
     const processedParam = inputParam;
 
@@ -60,17 +60,18 @@ const Characters: React.FC<PageProps> = () => {
     const [fetchedParamsNum, setFetchedParamsNum] = useState(1);
     const [fetchedParamsJson, setFetchedParamsJson] = useState(starterJson);
 
-    useEffect(() => {
-        const [page, setPage] = useQueryParam("page", NumberParam);
-        let fetchedParams;
-        AquireData(page).then((resultOfQuery) => {
-            fetchedParams = resultOfQuery
+    const fetchedParamsWrapped = useCallback( async () => {
+        const params = new Proxy(new URLSearchParams(window.location.search), {
+            get: (searchParams, prop) => searchParams.get(prop),
         });
-        if (!fetchedParams) {
-            fetchedParams = [1, starterJson]
-        }
+
+        const fetchedParams = await AquireData(params);
         setFetchedParamsNum(fetchedParams[0]);
         setFetchedParamsJson(fetchedParams[1]);
+      }, [])
+
+    useEffect(() => {
+        fetchedParamsWrapped();
         const payloadLoadedUp = Number(fetchedParamsNum) + 1;
         if (payloadLoadedUp > 42) {
             setPageUpVal('/characters/?page=42');
@@ -86,7 +87,7 @@ const Characters: React.FC<PageProps> = () => {
         else {
             setPageDownVal('/characters/?page=' + payloadLoadedDown.toString());
         }
-      }, [fetchedParamsNum])
+      }, [fetchedParamsNum, fetchedParamsWrapped])
 
     return (
         <Layout>
