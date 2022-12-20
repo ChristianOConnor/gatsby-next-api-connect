@@ -1,20 +1,20 @@
 import * as styles from '../../styles/Home.module.css';
-import { useCallback, useEffect, useState } from 'react';
+import { useQueryParam, NumberParam, StringParam } from "use-query-params";
 import { Link, PageProps } from 'gatsby';
-import React from 'react';
 import Layout from '../components/layout';
+import React, { useEffect, useState } from 'react';
 
 const AquireData = async (params: any) => {
     let inputParam = 1;
 
-    if (!params || params?.page == null) {
+    if (!params == null) {
         inputParam = 1;
-    } else if (isNaN(params.page)) {
+    } else if (isNaN(params)) {
         inputParam = 1;
-    } else if (parseInt(params.page) < 0 || parseInt(params.page) > 42) {
+    } else if (parseInt(params) < 0 || parseInt(params) > 42) {
         inputParam = 1;
     } else {
-        inputParam = params.page;
+        inputParam = params;
     }
     const processedParam = inputParam;
 
@@ -60,15 +60,17 @@ const Characters: React.FC<PageProps> = () => {
     const [fetchedParamsNum, setFetchedParamsNum] = useState(1);
     const [fetchedParamsJson, setFetchedParamsJson] = useState(starterJson);
 
-    const fetchedParamsWrapped = useCallback( async () => {
-        const params = new URLSearchParams(location.search);
-        const fetchedParams = await AquireData(params);
+    useEffect(() => {
+        const [page, setPage] = useQueryParam("page", NumberParam);
+        let fetchedParams;
+        AquireData(page).then((resultOfQuery) => {
+            fetchedParams = resultOfQuery
+        });
+        if (!fetchedParams) {
+            fetchedParams = [1, starterJson]
+        }
         setFetchedParamsNum(fetchedParams[0]);
         setFetchedParamsJson(fetchedParams[1]);
-      }, [])
-
-    useEffect(() => {
-        fetchedParamsWrapped();
         const payloadLoadedUp = Number(fetchedParamsNum) + 1;
         if (payloadLoadedUp > 42) {
             setPageUpVal('/characters/?page=42');
@@ -84,7 +86,7 @@ const Characters: React.FC<PageProps> = () => {
         else {
             setPageDownVal('/characters/?page=' + payloadLoadedDown.toString());
         }
-      }, [fetchedParamsNum, fetchedParamsWrapped])
+      }, [fetchedParamsNum])
 
     return (
         <Layout>
